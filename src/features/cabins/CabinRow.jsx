@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import styled from "styled-components";
-import { deleteCabin } from "../../services/apiCabins";
-import { formatCurrency } from "../../utils/helpers";
-import toast from "react-hot-toast";
 import { useState } from "react";
+import { HiPencil, HiSquare2Stack, HiTrash } from "react-icons/hi2";
+import styled from "styled-components";
+import { formatCurrency } from "../../utils/helpers";
 import CreateCabinForm from "./CreateCabinForm";
+import useCreateCabin from "./useCreateCabin";
+import useDeleteCabin from "./useDeleteCabin";
 
 const TableRow = styled.div`
   display: grid;
@@ -48,6 +48,7 @@ const Discount = styled.div`
 
 export default function CabinRow({ cabin }) {
   const [showForm, setShowForm] = useState(false);
+  const { deleteCabin, isDeleting } = useDeleteCabin();
 
   const {
     id: cabinId,
@@ -56,27 +57,21 @@ export default function CabinRow({ cabin }) {
     regularPrice,
     discount,
     image,
+    description,
   } = cabin;
 
-  const queryClient = useQueryClient();
+  const { createCabin, isCreating } = useCreateCabin();
 
-  /* 
-  after mutation, we need to invalidate the cur data
-  to do that, we need to invalidate the cabins query key on mutate success
-  */
-
-  const { isPending, mutate } = useMutation({
-    mutationFn: deleteCabin,
-    onSuccess: () => {
-      toast.success("Cabin deleted successfully");
-      queryClient.invalidateQueries({
-        queryKey: ["cabins"],
-      });
-    },
-    onError: (err) => {
-      toast.error(err.message);
-    },
-  });
+  function handleDuplicate() {
+    createCabin({
+      name: `Copy of  ${name}`,
+      maxCapacity,
+      regularPrice,
+      discount,
+      image,
+      description,
+    });
+  }
 
   return (
     <>
@@ -85,11 +80,20 @@ export default function CabinRow({ cabin }) {
         <Cabin>{name}</Cabin>
         <div> Fits upto {maxCapacity} guests </div>
         <Price> {formatCurrency(regularPrice)} </Price>
-        <Discount>{formatCurrency(discount)}</Discount>
+        {discount ? (
+          <Discount>{formatCurrency(discount)}</Discount>
+        ) : (
+          <span>&mdash;</span>
+        )}
         <div>
-          <button onClick={() => setShowForm((show) => !show)}>Edit</button>
-          <button disabled={isPending} onClick={() => mutate(cabinId)}>
-            delete
+          <button disabled={isCreating} onClick={handleDuplicate}>
+            <HiSquare2Stack />
+          </button>
+          <button onClick={() => setShowForm((show) => !show)}>
+            <HiPencil />
+          </button>
+          <button disabled={isDeleting} onClick={() => deleteCabin(cabinId)}>
+            <HiTrash />
           </button>
         </div>
       </TableRow>

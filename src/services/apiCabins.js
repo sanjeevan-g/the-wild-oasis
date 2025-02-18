@@ -29,15 +29,11 @@ export async function createEditCabin(newCabin, id) {
   let query = supabase.from("cabins");
 
   // A.create cabin
-  if (!id)
-    query = query.from("cabins").insert([{ ...newCabin, image: imagePath }]);
+  if (!id) query = query.insert([{ ...newCabin, image: imagePath }]);
 
   // B. Edit cabins
   if (id) {
-    query = query
-      .update({ ...newCabin, image: imagePath })
-      .eq("id", id)
-      .select();
+    query = query.update({ ...newCabin, image: imagePath }).eq("id", id);
   }
 
   const { data, error } = await query.select().single();
@@ -48,31 +44,23 @@ export async function createEditCabin(newCabin, id) {
   }
 
   // 2. upload the img to bucket
-  if (hasImagePath) {
-    const { error: StorageError } = await supabase.storage
-      .from("cabin-images")
-      .upload(imageName, newCabin.image);
+  if (hasImagePath) return data;
 
-    // 3. delete the cabin, IF there is an error fileUpload
-    if (StorageError) {
-      await supabase.from("cabins").delete().eq("id", data.id);
-      console.error(StorageError);
-      throw new Error("Error in file upload and the cabin was not created");
-    }
+  const { error: StorageError } = await supabase.storage
+    .from("cabin-images")
+    .upload(imageName, newCabin.image);
+
+  // 3. delete the cabin, IF there is an error fileUpload
+  if (StorageError) {
+    await supabase.from("cabins").delete().eq("id", data.id);
+    console.error(StorageError);
+    throw new Error("Error in file upload and the cabin was not created");
   }
 
   return data;
 }
 
 export async function deleteCabin(id) {
-  // here the data is null
-  //   {
-  //     "error": null,
-  //     "data": null,
-  //     "count": null,
-  //     "status": 204,
-  //     "statusText": ""
-  // }
   const { data, error } = await supabase.from("cabins").delete().eq("id", id);
 
   if (error) {
