@@ -1,4 +1,14 @@
+/* eslint-disable react/prop-types */
+import { useContext } from "react";
+import { useState } from "react";
+import { cloneElement } from "react";
+import { useEffect } from "react";
+import { useRef } from "react";
+import { createContext } from "react";
+import { createPortal } from "react-dom";
+import { HiXMark } from "react-icons/hi2";
 import styled from "styled-components";
+import useOutsideClick from "../hooks/useOutsideClick";
 
 const StyledModal = styled.div`
   position: fixed;
@@ -48,3 +58,80 @@ const Button = styled.button`
     color: var(--color-grey-500);
   }
 `;
+
+// Modal Context
+
+const ModalContext = createContext();
+
+function Modal({ children }) {
+  // state to track modal name
+
+  const [openName, setOpenName] = useState("");
+
+  const close = () => setOpenName("");
+
+  const open = setOpenName;
+
+  return (
+    <ModalContext.Provider value={{ openName, close, open }}>
+      {children}
+    </ModalContext.Provider>
+  );
+}
+
+function Open({ children, opens: opensWindowName }) {
+  const { open } = useContext(ModalContext);
+
+  return cloneElement(children, {
+    onClick: () => open(opensWindowName),
+  });
+}
+
+function Window({ children, name }) {
+  const { openName, close } = useContext(ModalContext);
+
+  // exported to custom hook
+  // const ref = useRef("");
+
+  // useEffect(() => {
+  //   function handleClick(e) {
+  //     // ref present and ref elem don't contain target then close the modal
+  //     if (ref.current && !ref.current.contains(e.target)) {
+  //       close();
+  //     }
+  //   }
+
+  //   // listen to event in capturing phase instead of bubbling
+  //   document.addEventListener("click", handleClick, true);
+
+  //   return () => {
+  //     document.removeEventListener("click", handleClick, true);
+  //   };
+  // }, [close]);
+
+  const ref = useOutsideClick(close);
+
+  if (name !== openName) return null;
+
+  // createPortal argument => JSX, Where we want to place this modal in DOM
+  return createPortal(
+    <Overlay>
+      <StyledModal ref={ref}>
+        <Button onClick={close}>
+          <HiXMark />
+        </Button>
+        <div>
+          {cloneElement(children, {
+            onCloseModal: close,
+          })}
+        </div>
+      </StyledModal>
+    </Overlay>,
+    document.body
+  );
+}
+
+Modal.Open = Open;
+Modal.Window = Window;
+
+export default Modal;
