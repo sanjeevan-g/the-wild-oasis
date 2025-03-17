@@ -40,7 +40,9 @@ function CreateCabinForm({ cabinToEdit = {}, onCloseModal }) {
         },
         {
           // function has access to data sent by createCabin funtion after mutation
-          // onSuccess: (data) => {},
+          onSuccess: () => {
+            onCloseModal();
+          },
         }
       );
     } else {
