@@ -1,9 +1,31 @@
-import BookingRow from "./BookingRow";
-import Table from "../../ui/Table";
+import Empty from "../../ui/Empty";
 import Menus from "../../ui/Menus";
+import Pagination from "../../ui/Pagination";
+import Spinner from "../../ui/Spinner";
+import Table from "../../ui/Table";
+import BookingRow from "./BookingRow";
+import { useBookings } from "./useBookings";
 
 function BookingTable() {
-  const bookings = [];
+  const { bookings, isLoading, count } = useBookings();
+  // const [searchParams] = useSearchParams();
+
+  if (isLoading) return <Spinner />;
+
+  if (!bookings?.length) return <Empty resourceName="Bookings" />;
+
+  // 1. FILTER
+  // const filterValue = searchParams.get("status") || "all";
+
+  // let filteredBookings;
+
+  // if (filterValue == "all") {
+  //   filteredBookings = bookings;
+  // } else {
+  //   filteredBookings = bookings.filter(
+  //     (booking) => booking.status === filterValue
+  //   );
+  // }
 
   return (
     <Menus>
@@ -23,6 +45,9 @@ function BookingTable() {
             <BookingRow key={booking.id} booking={booking} />
           )}
         />
+        <Table.Footer>
+          <Pagination count={count} />
+        </Table.Footer>
       </Table>
     </Menus>
   );

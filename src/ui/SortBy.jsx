@@ -7,8 +7,15 @@ function SortBy({ options }) {
 
   const sortBy = searchParams.get("sortBy") || "";
 
+  const page = searchParams.get("page") || null;
+
   function handleChange(e) {
     searchParams.set("sortBy", e.target.value);
+
+    // reset the page param
+    if (page) {
+      searchParams.set("page", 1);
+    }
     setSearchParams(searchParams);
   }
 
