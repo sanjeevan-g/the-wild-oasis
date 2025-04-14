@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { createContext } from "react";
 import { createPortal } from "react-dom";
 import { HiEllipsisVertical } from "react-icons/hi2";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import useOutsideClick from "../hooks/useOutsideClick";
 
 const Menu = styled.div`
@@ -55,6 +55,12 @@ const StyledButton = styled.button`
   display: flex;
   align-items: center;
   gap: 1.6rem;
+
+  ${(props) =>
+    props.disabled == true &&
+    css`
+      pointer-events: none;
+    `}
 
   &:hover {
     background-color: var(--color-grey-50);
@@ -122,7 +128,7 @@ function List({ id, children }) {
   );
 }
 
-function Button({ children, icon, onClick }) {
+function Button({ children, icon, onClick, disabled = false }) {
   const { close } = useContext(MenuContext);
   function handleClick() {
     onClick?.();
@@ -131,7 +137,7 @@ function Button({ children, icon, onClick }) {
 
   return (
     <li>
-      <StyledButton onClick={handleClick}>
+      <StyledButton onClick={handleClick} disabled={disabled}>
         {icon}
         <span>{children}</span>
       </StyledButton>
