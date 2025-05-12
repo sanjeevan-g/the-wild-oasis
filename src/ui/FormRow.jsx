@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 const StyledFormRow = styled.div`
   display: grid;
   align-items: center;
-  grid-template-columns: 24rem 1fr 1.2fr;
-  gap: 2.4rem;
+  grid-template-columns: ${(props) =>
+    props.orientation === "vertical" ? "1fr" : "24rem 1fr 1.2fr"};
+  gap: ${(props) => (props.orientation === "vertical" ? "0.8rem" : "2.4rem")};
 
   padding: 1.2rem 0;
 
@@ -20,12 +21,16 @@ const StyledFormRow = styled.div`
   &:not(:last-child) {
     border-bottom: 1px solid var(--color-grey-100);
   }
-
-  &:has(button) {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1.2rem;
-  }
+  /* Special treatment if the row contains buttons, and if it's NOT a vertical row */
+  ${(props) =>
+    props.orientation !== "vertical" &&
+    css`
+      &:has(button) {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1.2rem;
+      }
+    `}
 `;
 
 const Label = styled.label`
@@ -37,9 +42,14 @@ const Error = styled.span`
   color: var(--color-red-700);
 `;
 
-export default function FormRow({ label, error, children }) {
+export default function FormRow({
+  label,
+  error,
+  children,
+  orientation = "horizontal",
+}) {
   return (
-    <StyledFormRow>
+    <StyledFormRow orientation={orientation}>
       {/* htmlFor same as input it, here input is children */}
       {label && <Label htmlFor={children.props.id}>{label}</Label>}
       {children}
