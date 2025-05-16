@@ -82,7 +82,5 @@ export async function updateCurrentUser({ password, fullName, avatar }) {
 
   if (error2) throw new Error(error2.message);
 
-  console.log(updatedUserData);
-
   return updatedUserData;
 }
