@@ -12,12 +12,12 @@ import { HiArrowUpOnSquare } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useMoveBack } from "../../hooks/useMoveBack";
 import Spinner from "../../ui/Spinner";
-import { useCheckout } from "../check-in-out/useCheckOut";
 import { useBooking } from "./useBooking";
 import Modal from "../../ui/Modal";
 import ConfirmDelete from "../../ui/ConfirmDelete";
 import useDeleteBooking from "./useDeleteBooking";
 import Empty from "../../ui/Empty";
+import { useCheckout } from "../check-in-out/useCheckOut";
 
 const HeadingGroup = styled.div`
   display: flex;
